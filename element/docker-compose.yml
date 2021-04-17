@@ -1,0 +1,16 @@
+version: "3.3"
+
+services:
+  element:
+    image: vectorim/element-web
+    restart: always
+    volumes:
+      - "./element-config.json:/app/config.json"
+    networks:
+      nginx_server:
+        aliases:
+          - element
+
+networks:
+  nginx_server:
+    external: true
