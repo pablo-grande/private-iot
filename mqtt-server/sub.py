@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*
 import paho.mqtt.client as mqtt
 from config import gateway_config as gateway_config
@@ -7,7 +7,6 @@ from ssl import PROTOCOL_TLS
 
 
 SERVER, PORT = gateway_config['server'], gateway_config['port']
-username, password = gateway_config['username'], gateway_config['password']
 topic = '#'
 
 
@@ -26,9 +25,6 @@ def on_message(client, userdata, message):
 client = mqtt.Client('subscribber', transport='tcp')
 client.on_connect = on_connect
 client.on_message = on_message
-client.tls_set(ca_certs=None, certfile=None, keyfile=None, cert_reqs=None,
-    tls_version=PROTOCOL_TLS, ciphers=None)
-client.username_pw_set(username=username, password=password)
 client.connect(SERVER, PORT)
 client.loop_forever()
 
