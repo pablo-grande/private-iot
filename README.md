@@ -39,7 +39,7 @@ docker network create nginx_server
 ### Register a new user
 Enter synapse service
 ```
-docker-compose exec synapse register_new_matrix_user -c data/homesever.yaml https://localhost:8008
+docker-compose exec synapse register_new_matrix_user -c data/homesever.yaml http://localhost:8008
 ```
 
 You can now login with
