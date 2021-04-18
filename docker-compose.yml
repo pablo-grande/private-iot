@@ -16,19 +16,19 @@ services:
       - 443:443
 
   #FIXME: letsencrypt will only work with proper domain names
-  letsencrypt:
-    image: nginxproxy/acme-companion
-    container_name: letsencrypt
-    volumes:
-      - "certs:/etc/nginx/certs"
-      - "vhost:/etc/nginx/vhost.d"
-      - "html:/usr/share/nginx/html"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    environment:
-      NGINX_PROXY_CONTAINER: proxy
-    networks: ["nginx_server"]
-    restart: always
-    depends_on: ["proxy"]
+  #  letsencrypt:
+  #    image: nginxproxy/acme-companion
+  #    container_name: letsencrypt
+  #    volumes:
+  #      - "certs:/etc/nginx/certs"
+  #      - "vhost:/etc/nginx/vhost.d"
+  #      - "html:/usr/share/nginx/html"
+  #      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+  #    environment:
+  #      NGINX_PROXY_CONTAINER: proxy
+  #    networks: ["nginx_server"]
+  #    restart: always
+  #    depends_on: ["proxy"]
 
   synapse:
     image: matrixdotorg/synapse:latest
@@ -42,16 +42,6 @@ services:
       SYNAPSE_SERVER_NAME: "localhost"
       SYNAPSE_REPORT_STATS: "yes"
     networks: ["nginx_server"]
-
-  element:
-    image: vectorim/element-web
-    restart: always
-    volumes:
-      - "./element-config.json:/app/config.json"
-    networks:
-      nginx_server:
-        aliases:
-          - element
 
 networks:
   nginx_server:

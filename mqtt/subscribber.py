@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*
 import paho.mqtt.client as mqtt
-from config import gateway_config as gateway_config
-from requests import post
-from ssl import PROTOCOL_TLS
+from config import gateway_config
 
 
 SERVER, PORT = gateway_config['server'], gateway_config['port']
@@ -14,7 +12,6 @@ def on_connect(client, userdata, flags, rc):
     print(f'connected to {SERVER}:{PORT} with result code {rc}')
     # subscribing here will mean renewed subscription after losing connection
     print(f'About to subscribe to {topic}')
-    client.publish("testing", "missatge_test")
     client.subscribe(topic)
 
 
