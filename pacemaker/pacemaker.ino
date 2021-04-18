@@ -11,13 +11,16 @@
 
 
 // WiFi
+// TODO: Add in secrets.h
 const char* ssid = "MIWIFI_5G_6deK";                 // Your personal network SSID
 const char* wifi_password = "gJxx6kGY"; // Your personal network password
 
 // MQTT
+// TODO: Add in secrets.h
 const char* mqtt_server = "192.168.1.240";  // IP of the MQTT broker
 const char* tension = "patient/tension/mmHg";
 const char* beats = "patient/beats/bpm";
+// TODO: Implement if time left
 //const char* mqtt_username = "iot"; // MQTT username
 //const char* mqtt_password = "iot"; // MQTT password
 const char* clientID = "pacemaker"; // MQTT client ID
@@ -28,7 +31,7 @@ WiFiClient wifiClient;
 PubSubClient client(mqtt_server, 1883, wifiClient); 
 
 
-void connect_WiFi (){
+void connect_WiFi() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
@@ -47,9 +50,7 @@ void connect_WiFi (){
   Serial.println(WiFi.localIP());
 }
 
-// Custom function to connet to the MQTT broker via WiFi
 void connect_MQTT(){
-  
   // Connect to MQTT Broker
   // client.connect returns a boolean value to let us know if the connection was successful.
   // If the connection is failing, make sure you are using the correct MQTT Username and Password (Setup Earlier in the Instructable)
@@ -69,6 +70,7 @@ void loop() {
   connect_MQTT();
   Serial.setTimeout(2000);
   
+  //TODO: Add some variability
   float t = 120.0;
   float bpm = 70.0;
   
