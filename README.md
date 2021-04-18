@@ -14,13 +14,17 @@ Contains a mosquitto server and an MQTT subscribber. Currently listens to every 
 
 Follow the given instructions of official [Martix.org - INSTALL.md](https://github.com/matrix-org/synapse/blob/master/INSTALL.md)
 
-We used python pip to install a Matrix homeserver running in localhost:8008. Users were manually added with `register_new_matrix_user` command:
+We used python pip to install a Matrix homeserver running in localhost:8008. 
+Start homeserver with `synctl start`.  
+Users were manually added with `register_new_matrix_user` command.  
 1. Admin user creates a room
 2. Normal user
 3. Admin invites normal user to join room
 4. Normal user can send information to room through Matrix client from Python SDK.
 
 *Register user and room creation should be done through Matrix client in one bit*
+
+*Would be nice to [federate](https://github.com/matrix-org/synapse/blob/master/docs/federate.md)
 
 ### Install with docker and docker-compose
 **Some base images were changed**
