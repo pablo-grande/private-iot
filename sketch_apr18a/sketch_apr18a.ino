@@ -16,11 +16,11 @@ const char* wifi_password = "gJxx6kGY"; // Your personal network password
 
 // MQTT
 const char* mqtt_server = "192.168.1.240";  // IP of the MQTT broker
-const char* humidity_topic = "home/livingroom/humidity";
-const char* temperature_topic = "home/livingroom/temperature";
+const char* tension = "patient/tension/mmHg";
+const char* beats = "patient/beats/bpm";
 //const char* mqtt_username = "iot"; // MQTT username
 //const char* mqtt_password = "iot"; // MQTT password
-const char* clientID = "client_livingroom"; // MQTT client ID
+const char* clientID = "pacemaker"; // MQTT client ID
 
 // Initialise the WiFi and MQTT Client objects
 WiFiClient wifiClient;
@@ -28,8 +28,7 @@ WiFiClient wifiClient;
 PubSubClient client(mqtt_server, 1883, wifiClient); 
 
 
-// Custom function to connet to the MQTT broker via WiFi
-void connect_MQTT(){
+void connect_WiFi (){
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
@@ -46,67 +45,68 @@ void connect_MQTT(){
   Serial.println("WiFi connected");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+}
 
+// Custom function to connet to the MQTT broker via WiFi
+void connect_MQTT(){
+  
   // Connect to MQTT Broker
   // client.connect returns a boolean value to let us know if the connection was successful.
   // If the connection is failing, make sure you are using the correct MQTT Username and Password (Setup Earlier in the Instructable)
   if (client.connect(clientID)) {
     Serial.println("Connected to MQTT Broker!");
-  }
-  else {
+  } else {
     Serial.println("Connection to MQTT Broker failed...");
   }
 }
 
-
 void setup() {
   Serial.begin(9600);
-
+  connect_WiFi();
 }
 
 void loop() {
   connect_MQTT();
   Serial.setTimeout(2000);
   
-  float h = 1.0;
-  float t = 25.0;
+  float t = 120.0;
+  float bpm = 70.0;
   
-  Serial.print("Humidity: ");
-  Serial.print(h);
-  Serial.println(" %");
-  Serial.print("Temperature: ");
+  Serial.print("Tension: ");
   Serial.print(t);
-  Serial.println(" *C");
+  Serial.println(" mmHg");
+  Serial.print("Beats: ");
+  Serial.print(bpm);
+  Serial.println(" bpm");
 
   // MQTT can only transmit strings
-  String hs="Hum: "+String((float)h)+" % ";
-  String ts="Temp: "+String((float)t)+" C ";
+  String a="Hum: "+String((float)t)+" mmHg ";
+  String b="Temp: "+String((float)bpm)+" bpm ";
 
   // PUBLISH to the MQTT Broker (topic = Temperature, defined at the beginning)
-  if (client.publish(temperature_topic, String(t).c_str())) {
-    Serial.println("Temperature sent!");
-  }
+  if (client.publish(tension, String(a).c_str())) {
+    Serial.println("tension sent!");
+  } else {
   // Again, client.publish will return a boolean value depending on whether it succeded or not.
   // If the message failed to send, we will try again, as the connection may have broken.
-  else {
     Serial.println("Temperature failed to send. Reconnecting to MQTT Broker and trying again");
     client.connect(clientID);
     delay(10); // This delay ensures that client.publish doesn't clash with the client.connect call
-    client.publish(temperature_topic, String(t).c_str());
+    client.publish(tension, String(a).c_str());
   }
 
   // PUBLISH to the MQTT Broker (topic = Humidity, defined at the beginning)
-  if (client.publish(humidity_topic, String(h).c_str())) {
-    Serial.println("Humidity sent!");
-  }
+  if (client.publish(beats, String(b).c_str())) {
+    Serial.println("beats sent!");
+  } else {
   // Again, client.publish will return a boolean value depending on whether it succeded or not.
   // If the message failed to send, we will try again, as the connection may have broken.
-  else {
+  
     Serial.println("Humidity failed to send. Reconnecting to MQTT Broker and trying again");
     client.connect(clientID);
     delay(10); // This delay ensures that client.publish doesn't clash with the client.connect call
-    client.publish(humidity_topic, String(h).c_str());
+    client.publish(beats, String(b).c_str());
   }
-  client.disconnect();  // disconnect from the MQTT broker
-  delay(1000*60);       // print new values every 1 Minute
+  //client.disconnect();  // disconnect from the MQTT broker
+  delay(1000*10);       // print new values every 10 seconds
 }
