@@ -3,13 +3,22 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from json import loads
 from logging import basicConfig, INFO, info as log
+from os import getenv
 from sys import argv
 
+from matrix_client.client import MatrixClient
 
 basicConfig(level=INFO)
 
+LOG_USER = getenv('LOG_USER')
+LOG_PASSWORD = getenv('LOG_PASSWORD')
+LOG_ROOM = getenv('LOG_ROOM')
 
-class ServerHandler(BaseHTTPRequestHandler):
+
+# TODO:
+# class ProxyHandler(BasteHTTPRequestHandler, MatrixClient)
+class ProxyHandler(BaseHTTPRequestHandler):
+
     def _send_response(self, code=200):
         self.send_response(code)
         self.send_header("Content-type", "text/html")
@@ -32,7 +41,14 @@ class ServerHandler(BaseHTTPRequestHandler):
         # send data to .onion service
 
         # log
+        client = MatrixClient(getenv(LOGGING_SERVER, "http://localhost:80")
+        token = client.login(username=LOG_USER, password=LOG_PASSWORD)
+        room = client.create_room("test_unsecure_2")
+        room.send_text("Hello!")
+        self._send_response()
 
+    def do_GET(self):
+        content_length = int(self.headers["Content-Length"])
         self._send_response()
 
     def send_error(self, *args, **kwargs):
@@ -41,8 +57,7 @@ class ServerHandler(BaseHTTPRequestHandler):
 
 def run(server_class=HTTPServer, handler_class=ServerHandler, port=8000):
     httpd = server_class(("", port), handler_class)
-    try:
-        httpd.serve_forever()
+    try: httpd.serve_forever()
     except KeyboardInterrupt:
         print("Stopping server execution")
     finally:

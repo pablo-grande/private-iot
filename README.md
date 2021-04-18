@@ -1,7 +1,6 @@
 matrix homesever
 ===
 
-
 **Some base images were changed**
 
 ## Install
@@ -19,12 +18,12 @@ docker network create nginx_server
 ## Register a new user
 Enter synapse service
 ```
-docker-compose exec synapse register_new_user -c data/homesever.yaml https://localhost:8008
+docker-compose exec synapse register_new_matrix_user -c data/homesever.yaml https://localhost:8008
 ```
 
 You can now login with
 
-```
+```curl
 curl -XPOST -d '{"type": "m.login.password", "user": "<user>", "password": "<password>"}' "localhost:80/_matrix/client/r0/login"
 ```
 It will return an `access_token`
