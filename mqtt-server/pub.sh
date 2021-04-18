@@ -1,7 +1,7 @@
 #!/bin/bash
 
-server="localhost"
-port=9001
+server="192.168.1.240"
+port=1883
 topic="ca_ses_llucies/1/system_state"
 states=('HOME' 'TRACKING' 'GHOST')
 
