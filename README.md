@@ -3,6 +3,34 @@ Private-IoT
 
 Send IoT data over Tor. Register in easily extendable Matrix homeserver.
 
+## Tor Setup
+> Look _How to Make Requests Over Tor Browser Using Python_ ref.
+
+Having install tor. Go to /etc/tor/torrc and edit these lines:
+```
+ControllerPort 9051
+HashedControlPassword <password>
+CookieAuthentication
+```
+Create a new <password> with
+```
+tor --hash-password "passphrase"
+```
+This configuration will let our computer form part of the Tor relay and do something like:
+
+```
+import requests
+
+session = requests.session()
+session.proxies = {
+    'http': 'socks5h://localhost:9050',
+    'https': 'socks5h://localhost:9050'
+}
+
+session_obj = session.get("http://onionshare:gentleman-nurture@v5eiiowe25r6ukd7dofpvkksix3v25mmyuiaqtunz53sjaciy2juatyd.onion")
+
+```
+
 ## Pacemaker
 Simple Arduino code for ESP32 chip that sends health data every 10s simulating a pacemaker.
 
@@ -66,3 +94,4 @@ Check Element service IP with `docker inspect <container>`
 [Testing the matrix.org client-server API](https://gist.github.com/RickCogley/69f430d4418ae5498e8febab44d241c9)  
 [Martix.org - Client Server API](https://matrix.org/docs/guides/client-server-api)  
 [Send data from ESP8266 or ESP32 to Raspberry Pi via MQTT](https://diyi0t.com/microcontroller-to-raspberry-pi-wifi-mqtt-communication/)
+[How to Make Requests Over Tor Browser Using Python](https://hackernoon.com/how-to-make-requests-over-tor-browser-using-python-zp153ur0)
