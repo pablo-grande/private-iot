@@ -95,3 +95,7 @@ Check Element service IP with `docker inspect <container>`
 [Martix.org - Client Server API](https://matrix.org/docs/guides/client-server-api)  
 [Send data from ESP8266 or ESP32 to Raspberry Pi via MQTT](https://diyi0t.com/microcontroller-to-raspberry-pi-wifi-mqtt-communication/)
 [How to Make Requests Over Tor Browser Using Python](https://hackernoon.com/how-to-make-requests-over-tor-browser-using-python-zp153ur0)
+
+(https://hub.docker.com/r/strm/tor-hiddenservice-nginx)
+(https://hub.docker.com/r/marcelmaatkamp/tor-hidden-service) -> hello-world en vez de hello_world
+(http://containertutorials.com/docker-compose/flask-simple-app.html)
