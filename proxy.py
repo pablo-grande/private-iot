@@ -1,23 +1,55 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
+import logging
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from json import loads
-from logging import basicConfig, INFO, info as log
 from os import getenv
 from sys import argv
 
 from matrix_client.client import MatrixClient
+from matrix_client.errors import MatrixHttpLibError
 
-basicConfig(level=INFO)
-
-LOG_USER = getenv('LOG_USER')
-LOG_PASSWORD = getenv('LOG_PASSWORD')
-LOG_ROOM = getenv('LOG_ROOM')
+logging.basicConfig(level=logging.INFO)
 
 
-# TODO:
-# class ProxyHandler(BasteHTTPRequestHandler, MatrixClient)
+class Logger:
+    address: str
+    port: int
+    token: str
+    rooms: dict
+
+    def __init__(self, *args, **kwargs):
+        self.address, self.port = args[0]
+        if 'username' not in kwargs:
+            kwargs.update({'username': getenv('LOG_USER')})
+        if 'password' not in kwargs:
+            kwargs.update({'password': getenv('LOG_PASSWORD')})
+        try:
+            self._client = MatrixClient(f"http://{self.address}:{self.port}")
+            self.token = self._client.login(**kwargs)
+        except MatrixHttpLibError as matrix_error:
+            logging.error(matrix_error)
+
+    def log(self, room_name, message):
+        if not self.token:
+            logging.error(f"MatrixClient was not properly intialized. No log can be done")
+            return
+        if room not in self.rooms:
+            logger.info(f"Adding new {room} room to logger")
+            room = self._client.join_room(room)
+            # TODO: get actual room name
+            room_name = 'test_room'
+            self.rooms[room_name] = room
+        logger.info(f"Sending {message} to {room}")
+        self.rooms[room_name].send_text(message)
+
+
 class ProxyHandler(BaseHTTPRequestHandler):
+    logger: Logger
+
+    def __init__(self, *args, **kwargs):
+        self.logger = Logger(args[1])
+        super().__init__(*args, **kwargs)
 
     def _send_response(self, code=200):
         self.send_response(code)
@@ -28,7 +60,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
     def do_PUT(self):
         content_length = int(self.headers["Content-Length"])
         put_data = self.rfile.read(content_length).decode("utf-8")
-        log(
+        logging.info(
             f"PUT request was:\n\
             Path: {self.path}\n\
             Headers: {self.headers}\
@@ -37,14 +69,8 @@ class ProxyHandler(BaseHTTPRequestHandler):
         device_data = loads(put_data)
         id_device = device_data["device_id"]
         to_send = device_data["data"]
-
-        # send data to .onion service
-
-        # log
-        client = MatrixClient(getenv(LOGGING_SERVER, "http://localhost:80")
-        token = client.login(username=LOG_USER, password=LOG_PASSWORD)
-        room = client.create_room("test_unsecure_2")
-        room.send_text("Hello!")
+        # TODO: send data to .onion service
+        self.logger.log(id_device, to_send)
         self._send_response()
 
     def do_GET(self):
@@ -55,7 +81,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
         self._send_response(400)
 
 
-def run(server_class=HTTPServer, handler_class=ServerHandler, port=8000):
+def run(server_class=HTTPServer, handler_class=ProxyHandler, port=8000):
     httpd = server_class(("", port), handler_class)
     try: httpd.serve_forever()
     except KeyboardInterrupt:

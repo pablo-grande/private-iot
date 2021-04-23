@@ -99,3 +99,4 @@ Check Element service IP with `docker inspect <container>`
 (https://hub.docker.com/r/strm/tor-hiddenservice-nginx)
 (https://hub.docker.com/r/marcelmaatkamp/tor-hidden-service) -> hello-world en vez de hello_world
 (http://containertutorials.com/docker-compose/flask-simple-app.html)
+(https://github.com/cmehay/docker-tor-hidden-service)
