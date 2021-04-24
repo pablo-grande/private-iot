@@ -18,6 +18,11 @@ tor --hash-password "passphrase"
 ```
 This configuration will let our computer form part of the Tor relay and do something like:
 
+It is important to **restart tor service**, sometime it gets faulty when starting new connections
+```
+sudo systemctl restart tor
+```
+
 ```
 import requests
 
@@ -88,6 +93,7 @@ Download sample config:
 wget https://develop.element.io/config.json -O element-config.json
 ```
 Check Element service IP with `docker inspect <container>`
+
 
 ## References
 [How to Install Matrix Synapse Homeserver Using Docker](https://linuxhandbook.com/install-matrix-synapse-docker/)  

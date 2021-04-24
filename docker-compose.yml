@@ -43,6 +43,31 @@ services:
       SYNAPSE_REPORT_STATS: "yes"
     networks: ["nginx_server"]
 
+  tor:
+    image: goldy/tor-hidden-service:0.3.5.8
+    links:
+      - web
+    environment:
+      # hello and again will share the same onion v3 address
+      SERVICE2_TOR_SERVICE_HOSTS: 80:web:5000
+      SERVICE2_TOR_SERVICE_VERSION: '3'
+      # tor v3 address private key base 64 encoded
+      SERVICE2_TOR_SERVICE_KEY: |
+        PT0gZWQyNTUxOXYxLXNlY3JldDogdHlwZTAgPT0AAACArobDQYyZAWXei4QZwr++
+        j96H1X/gq14NwLRZ2O5DXuL0EzYKkdhZSILY85q+kfwZH8z4ceqe7u1F+0pQi/sM
+
+  web:
+    build: hidden-service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./hidden-service:/code
+    environment:
+      FLASK_ENV: development
+
+  redis:
+    image: "redis:alpine"
+
 networks:
   nginx_server:
     external: true
@@ -51,3 +76,4 @@ volumes:
   certs:
   vhost:
   html:
+

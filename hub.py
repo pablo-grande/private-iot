@@ -5,11 +5,39 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from json import loads
 from os import getenv
 from sys import argv
+from requests import session
 
 from matrix_client.client import MatrixClient
 from matrix_client.errors import MatrixHttpLibError
 
+from settings import (
+    ONION_ADDR,
+    LOG_USER,
+    LOG_PASSWORD
+)
+
+
 logging.basicConfig(level=logging.INFO)
+
+
+class HiddenService:
+    session = requests.session()
+    proxies = {
+        'http': 'socks5h://localhost:9050',
+        'https': 'socks5h://localhost:9050'
+    }
+
+    def __init__(self, *args, **kwargs):
+        self.session.proxies = self.proxies
+        self.addrs = addrs
+
+    def put(self, id_device, json_data):
+        self.url = "http://{self.addrs['id_device']}"
+        session_obj = self.session.put(self.url, json=json_data)
+        if session_obj.ok:
+            logging.success(json_data)
+        else:
+            logging.error(f"failed to connect {URL}")
 
 
 class Logger:
@@ -21,9 +49,9 @@ class Logger:
     def __init__(self, *args, **kwargs):
         self.address, self.port = args[0]
         if 'username' not in kwargs:
-            kwargs.update({'username': getenv('LOG_USER')})
+            kwargs.update({'username': LOG_USER})
         if 'password' not in kwargs:
-            kwargs.update({'password': getenv('LOG_PASSWORD')})
+            kwargs.update({'password': LOG_PASSWORD})
         try:
             self._client = MatrixClient(f"http://{self.address}:{self.port}")
             self.token = self._client.login(**kwargs)
@@ -46,9 +74,11 @@ class Logger:
 
 class ProxyHandler(BaseHTTPRequestHandler):
     logger: Logger
+    hidden_service: HiddenService
 
     def __init__(self, *args, **kwargs):
         self.logger = Logger(args[1])
+        self.hidden_service = HiddenService(ONION_ADDR)
         super().__init__(*args, **kwargs)
 
     def _send_response(self, code=200):
@@ -69,7 +99,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
         device_data = loads(put_data)
         id_device = device_data["device_id"]
         to_send = device_data["data"]
-        # TODO: send data to .onion service
+        self.hidden_service.put(id_device, to_send)
         self.logger.log(id_device, to_send)
         self._send_response()
 
