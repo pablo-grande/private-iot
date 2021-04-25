@@ -82,8 +82,8 @@ void loop() {
   Serial.println(" bpm");
 
   // MQTT can only transmit strings
-  String a="Hum: "+String((float)t)+" mmHg ";
-  String b="Temp: "+String((float)bpm)+" bpm ";
+  String a="Tension: "+String((float)t)+" mmHg ";
+  String b="Beats: "+String((float)bpm)+" bpm ";
 
   // PUBLISH to the MQTT Broker (topic = Temperature, defined at the beginning)
   if (client.publish(tension, String(a).c_str())) {
@@ -91,7 +91,7 @@ void loop() {
   } else {
   // Again, client.publish will return a boolean value depending on whether it succeded or not.
   // If the message failed to send, we will try again, as the connection may have broken.
-    Serial.println("Temperature failed to send. Reconnecting to MQTT Broker and trying again");
+    Serial.println("failed to send. Reconnecting to MQTT Broker and trying again");
     client.connect(clientID);
     delay(10); // This delay ensures that client.publish doesn't clash with the client.connect call
     client.publish(tension, String(a).c_str());
@@ -104,7 +104,7 @@ void loop() {
   // Again, client.publish will return a boolean value depending on whether it succeded or not.
   // If the message failed to send, we will try again, as the connection may have broken.
   
-    Serial.println("Humidity failed to send. Reconnecting to MQTT Broker and trying again");
+    Serial.println("failed to send. Reconnecting to MQTT Broker and trying again");
     client.connect(clientID);
     delay(10); // This delay ensures that client.publish doesn't clash with the client.connect call
     client.publish(beats, String(b).c_str());

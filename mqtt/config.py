@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*
 
-commissioner_config = {
+gateway_config = {
     'server': '127.0.0.1',
     'port': 1883,
+    'm_user': 'patient',
+    'm_pass': 'MDTweSomWY'
 }
 
-gateway_config = commissioner_config.copy()

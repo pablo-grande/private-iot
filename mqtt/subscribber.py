@@ -9,6 +9,8 @@ SERVER, PORT = gateway_config['server'], gateway_config['port']
 matrix_username, matrix_password = gateway_config['m_user'], gateway_config['m_pass']
 topic = '#'
 
+messages = []
+
 
 def on_connect(client, userdata, flags, rc):
     print(f'connected to {SERVER}:{PORT} with result code {rc}')
@@ -18,13 +20,16 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, userdata, message):
-    print(f"{SERVER}/{message.topic}/p={message.payload} (QoS={message.qos})")
-    room = matrix_client.join_room("pacemaker")
-    room.send_text("A message was sent to your doctor today!")
+    # TODO: Change payload from Arduino itself
+    payload = message.payload.decode('utf-8').split(":")[-1].strip()
+    print(f"{SERVER}/{message.topic}/p={payload} (QoS={message.qos})")
+    topic = message.topic.split("/")[-1]
+    room.send_text(f"This is what's sent to your doctor: {payload}")
 
 
-matrix_client = MatrixClient("http://localhost:80")
+matrix_client = MatrixClient("http://localhost:8008")
 token = matrix_client.login(username=matrix_username, password=matrix_password)
+room = matrix_client.join_room("!qKGqWURPTdcyFQHFjJ:casper.magi.sys")
 client = mqtt.Client('subscribber', transport='tcp')
 client.on_connect = on_connect
 client.on_message = on_message
