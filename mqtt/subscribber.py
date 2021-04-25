@@ -3,6 +3,7 @@
 import paho.mqtt.client as mqtt
 from config import gateway_config
 from matrix_client.client import MatrixClient
+from requests import put
 
 
 SERVER, PORT = gateway_config['server'], gateway_config['port']
@@ -25,6 +26,10 @@ def on_message(client, userdata, message):
     print(f"{SERVER}/{message.topic}/p={payload} (QoS={message.qos})")
     topic = message.topic.split("/")[-1]
     room.send_text(f"This is what's sent to your doctor: {payload}")
+    # send message to hub
+    # TODO: incorporate message broker into hub itself
+    put("http://localhost:8000", json={"device": "patient", "topic": topic, "payload": payload})
+
 
 
 matrix_client = MatrixClient("http://localhost:8008")

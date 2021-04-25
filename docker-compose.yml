@@ -30,6 +30,7 @@ services:
   #    restart: always
   #    depends_on: ["proxy"]
 
+  # FIXME: Not supported with ARM. Build regular python image and install
   synapse:
     image: matrixdotorg/synapse:latest
     container_name: synapse

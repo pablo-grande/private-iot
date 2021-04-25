@@ -1,1 +1,0 @@
-curl -XPOST -d '{"type": "m.login.password", "user": "pablo", "password": "kark6424"}' "localhost:80/_matrix/client/r0/login"

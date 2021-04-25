@@ -12,8 +12,7 @@ from matrix_client.errors import MatrixHttpLibError
 
 from settings import (
     ONION_ADDR,
-    LOG_USER,
-    LOG_PASSWORD
+    LOGGER
 )
 
 
@@ -21,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 class HiddenService:
-    session = requests.session()
+    session = session()
     proxies = {
         'http': 'socks5h://localhost:9050',
         'https': 'socks5h://localhost:9050'
@@ -29,47 +28,47 @@ class HiddenService:
 
     def __init__(self, *args, **kwargs):
         self.session.proxies = self.proxies
-        self.addrs = addrs
+        self.addrs = ONION_ADDR
 
-    def put(self, id_device, json_data):
-        self.url = "http://{self.addrs['id_device']}"
+    def put(self, id_device, data):
+        self.url = f"http://{self.addrs[id_device]}"
+        json_data = {'id_device': id_device, 'data': data}
         session_obj = self.session.put(self.url, json=json_data)
         if session_obj.ok:
-            logging.success(json_data)
+            logging.debug(json_data)
         else:
-            logging.error(f"failed to connect {URL}")
+            logging.error(f"failed to connect {self.url}")
 
 
 class Logger:
     address: str
     port: int
     token: str
-    rooms: dict
+    room: dict
 
     def __init__(self, *args, **kwargs):
         self.address, self.port = args[0]
+        _room_name = args[1]
+        _room = LOGGER[_room_name]
         if 'username' not in kwargs:
-            kwargs.update({'username': LOG_USER})
+            kwargs.update({'username': _room["user"]})
         if 'password' not in kwargs:
-            kwargs.update({'password': LOG_PASSWORD})
+            kwargs.update({'password': _room["password"]})
         try:
-            self._client = MatrixClient(f"http://{self.address}:{self.port}")
+            # TODO: Make also dynamic
+            self._client = MatrixClient(f"http://localhost:8008")
             self.token = self._client.login(**kwargs)
+            self.room = self._client.join_room(_room_name)
         except MatrixHttpLibError as matrix_error:
             logging.error(matrix_error)
 
-    def log(self, room_name, message):
+    def log(self,  message):
+        # TODO: Allow reconnection with room name as param
         if not self.token:
             logging.error(f"MatrixClient was not properly intialized. No log can be done")
             return
-        if room not in self.rooms:
-            logger.info(f"Adding new {room} room to logger")
-            room = self._client.join_room(room)
-            # TODO: get actual room name
-            room_name = 'test_room'
-            self.rooms[room_name] = room
-        logger.info(f"Sending {message} to {room}")
-        self.rooms[room_name].send_text(message)
+        logging.info(f"Sending {message} to {self.room}")
+        self.room.send_text(message)
 
 
 class ProxyHandler(BaseHTTPRequestHandler):
@@ -77,7 +76,9 @@ class ProxyHandler(BaseHTTPRequestHandler):
     hidden_service: HiddenService
 
     def __init__(self, *args, **kwargs):
-        self.logger = Logger(args[1])
+        # FIXME
+        room_name = list(LOGGER.keys())[0]
+        self.logger = Logger(args[1], room_name)
         self.hidden_service = HiddenService(ONION_ADDR)
         super().__init__(*args, **kwargs)
 
@@ -97,10 +98,10 @@ class ProxyHandler(BaseHTTPRequestHandler):
             Body: {put_data}"
         )
         device_data = loads(put_data)
-        id_device = device_data["device_id"]
-        to_send = device_data["data"]
+        id_device = device_data["device"]
+        to_send = f"{device_data['topic']}: {device_data['payload']}"
         self.hidden_service.put(id_device, to_send)
-        self.logger.log(id_device, to_send)
+        self.logger.log(to_send)
         self._send_response()
 
     def do_GET(self):
