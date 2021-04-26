@@ -2,7 +2,6 @@ import logging
 import redis
 
 from datetime import datetime
-from pprint import pprint
 from time import sleep
 
 from flask import Flask, request
