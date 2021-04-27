@@ -27,7 +27,6 @@ def on_message(client, userdata, message):
 
 
 
-matrix_client = MatrixClient("http://localhost:8008")
 client = mqtt.Client('subscribber', transport='tcp')
 client.on_connect = on_connect
 client.on_message = on_message
